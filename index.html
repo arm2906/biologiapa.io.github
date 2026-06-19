@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proyecto Aula — Biología | CECyT 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0e17;
+    --bg2: #0f1420;
+    --bg3: #141926;
+    --accent: #00d4ff;
+    --accent2: #7b61ff;
+    --accent3: #00ff9d;
+    --accent4: #ff6b6b;
+    --text: #e8eaf0;
+    --text-muted: #8891a8;
+    --border: rgba(0,212,255,0.15);
+    --border2: rgba(255,255,255,0.06);
+    --mono: 'Space Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 255, 140, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .wrapper { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* MARQUEE */
+  .marquee-banner {
+    background: rgba(0, 255, 170, 0.05);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    padding: 12px 0;
+    white-space: nowrap;
+  }
+  .marquee-inner { display: inline-block; animation: scroll-left 22s linear infinite; }
+  .marquee-inner span {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    padding: 0 36px;
+  }
+  @keyframes scroll-left { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+  /* HEADER */
+  header { padding: 52px 0 40px; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
+  .tag-line {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .tag-line::before { content:''; display:inline-block; width:28px; height:1px; background:var(--accent); }
+  h1.main-title {
+    font-family: var(--mono); font-size: clamp(22px,4vw,36px); font-weight:700;
+    color:#fff; line-height:1.2; letter-spacing:-0.02em; margin-bottom:12px;
+  }
+  h1.main-title span { color: var(--accent); }
+  .subtitle { font-size:14px; color: var(--text-muted); font-family: var(--mono); letter-spacing:0.05em; }
+
+  /* ─── NAV HORIZONTAL ─── */
+  .nav-bar {
+    display: flex;
+    gap: 6px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 6px;
+    margin-bottom: 40px;
+    position: sticky;
+    top: 12px;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  .nav-tab {
+    flex: 1;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 12px 18px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-tab .tab-icon { font-size: 16px; }
+  .nav-tab .tab-label { text-align: left; }
+  .nav-tab .tab-label small { display:block; font-size:10px; color: var(--text-muted); letter-spacing:0.12em; margin-top:1px; text-transform: uppercase; }
+  .nav-tab:hover { border-color: var(--border); background: var(--bg3); color: var(--text); }
+  .nav-tab.active { background: var(--bg3); border-color: var(--accent-tab, var(--accent)); color: #fff; }
+  .nav-tab.active .tab-icon,
+  .nav-tab.active .tab-label { color: var(--accent-tab, var(--accent)); }
+  .nav-tab.active .tab-label small { color: var(--text-muted); }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: var(--mono); font-size:10px; letter-spacing:0.2em;
+    color: var(--accent2); text-transform:uppercase; margin-bottom:20px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border2); }
+
+  /* SECTION PANEL */
+  .section-panel { display: none; }
+  .section-panel.active { display: block; animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ─── VIDEO SECTION ─── */
+  .video-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .video-card-header {
+    padding: 20px 26px;
+    border-bottom: 1px solid var(--border2);
+    background: rgba(0,212,255,0.04);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .video-card-header .panel-num {
+    font-family: var(--mono); font-size:11px;
+    color: var(--accent); border: 1px solid var(--border);
+    padding: 3px 8px; border-radius: 4px;
+  }
+  .video-card-header .panel-title { font-family: var(--mono); font-size:16px; font-weight:700; color:#fff; }
+  .video-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    background: #050810;
+    /* ── Inserta aquí tu src de video ── */
+  }
+  .video-wrapper iframe,
+  .video-wrapper video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  .video-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    background: radial-gradient(ellipse at center, #0d1528 0%, #0a0e17 70%);
+    border: 2px dashed var(--border);
+  }
+  .play-icon {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,212,255,0.4);
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,212,255,0.06);
+  }
+  .play-icon svg { fill: var(--accent); width: 30px; height: 30px; margin-left: 4px; }
+  .placeholder-text { font-family: var(--mono); font-size:12px; color: var(--text-muted); letter-spacing:0.12em; text-transform:uppercase; text-align:center; }
+  .placeholder-text strong { color: var(--accent); display:block; margin-bottom:4px; font-size:14px; }
+  .video-meta {
+    padding: 18px 26px;
+    border-top: 1px solid var(--border2);
+    display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
+  }
+  .badge {
+    display:inline-block; padding:3px 12px; border-radius:20px;
+    font-family:var(--mono); font-size:10px; letter-spacing:0.08em;
+  }
+  .b-cyan { background:rgba(0,212,255,0.1); color:var(--accent); border:1px solid rgba(0,212,255,0.2); }
+  .b-purple { background:rgba(123,97,255,0.1); color:var(--accent2); border:1px solid rgba(123,97,255,0.2); }
+  .b-green { background:rgba(0,255,157,0.1); color:var(--accent3); border:1px solid rgba(0,255,157,0.2); }
+
+  /* ─── DOCS SECTION ─── */
+  /* sub-nav (doc tabs) */
+  .doc-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 28px;
+  }
+  .doc-tab {
+    flex: 1;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    cursor: pointer;
+    padding: 10px 16px;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 10px;
+    text-align: left;
+  }
+  .doc-tab .dt-num { color: var(--accent2); min-width:24px; }
+  .doc-tab .dt-title { line-height:1.3; }
+  .doc-tab .dt-title small { display:block; font-size:10px; color: var(--text-muted); margin-top:2px; }
+  .doc-tab:hover { border-color: var(--accent2); background: var(--bg3); color: var(--text); }
+  .doc-tab.active { border-color: var(--accent2); background: var(--bg3); color: #fff; }
+  .doc-tab.active .dt-num { color: var(--accent2); }
+
+  .doc-panel { display: none; }
+  .doc-panel.active { display: block; animation: fadeIn 0.2s ease; }
+
+  /* document card */
+  .doc-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .doc-header {
+    padding: 18px 26px;
+    border-bottom: 1px solid var(--border2);
+    background: rgba(123,97,255,0.05);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .doc-header-num {
+    font-family: var(--mono); font-size:11px;
+    color: var(--accent2); border: 1px solid rgba(123,97,255,0.25);
+    padding: 3px 8px; border-radius: 4px;
+  }
+  .doc-header-title { font-family: var(--mono); font-size:15px; font-weight:700; color:#fff; }
+  .doc-header-sub { margin-left:auto; font-family: var(--mono); font-size:10px; color: var(--text-muted); letter-spacing:0.08em; }
+  .doc-body { padding: 28px 26px; }
+
+  /* doc typography */
+  .doc-body h2 {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    color: var(--accent); text-transform: uppercase; letter-spacing: 0.12em;
+    border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 28px 0 14px;
+  }
+  .doc-body h2:first-child { margin-top: 0; }
+  .doc-body h3 {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--accent2); letter-spacing: 0.08em;
+    margin: 20px 0 10px;
+  }
+  .doc-body p { font-size: 14px; color: var(--text); margin-bottom: 12px; line-height: 1.75; }
+  .doc-body a { color: var(--accent2); }
+  .doc-body a:visited { color: aquamarine; }
+
+  /* portada del doc */
+  .doc-portada {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+  .doc-portada .inst { font-family:var(--mono); font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color: var(--accent); margin-bottom:10px; }
+  .doc-portada .portada-title { font-family:var(--mono); font-size:18px; font-weight:700; color:#fff; margin-bottom:6px; }
+  .doc-portada .portada-sub { font-size:13px; color: var(--text-muted); margin-bottom:16px; }
+  .doc-portada .authors { font-size:13px; color: var(--text); line-height:2; margin-bottom:12px; }
+  .doc-portada .date { font-family:var(--mono); font-size:11px; color: var(--text-muted); letter-spacing:0.08em; }
+  .doc-portada .grupo { display:inline-block; margin-top:8px; background:rgba(0,212,255,0.08); border:1px solid var(--border); border-radius:6px; padding:4px 14px; font-family:var(--mono); font-size:12px; color:var(--accent); }
+  .doc-portada .teacher { font-size:12px; color:var(--text-muted); margin-top:6px; }
+
+  /* species table */
+  .species-table-wrap { border: 1px solid var(--border2); border-radius: 10px; overflow: hidden; margin: 14px 0 24px; }
+  .species-table { width:100%; border-collapse:collapse; }
+  .species-table thead tr { background: rgba(123,97,255,0.1); border-bottom: 1px solid rgba(123,97,255,0.2); }
+  .species-table thead th {
+    padding: 10px 14px; font-family: var(--mono); font-size:10px;
+    letter-spacing:0.12em; color: var(--accent2); text-transform:uppercase;
+    text-align:left; font-weight:400;
+  }
+  .species-table tbody tr { border-bottom: 1px solid var(--border2); transition: background 0.15s; }
+  .species-table tbody tr:last-child { border-bottom: none; }
+  .species-table tbody tr:hover { background: rgba(255,255,255,0.025); }
+  .species-table td { padding: 12px 14px; vertical-align:top; font-size:13px; color: var(--text); line-height:1.65; }
+  .species-table td.key { font-weight:600; color:#fff; width:180px; font-size:12.5px; white-space:nowrap; }
+
+  /* ficha card */
+  .ficha-card {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .ficha-card-header {
+    padding: 14px 20px;
+    background: rgba(0,212,255,0.04);
+    border-bottom: 1px solid var(--border2);
+    display: flex; align-items: center; gap: 12px; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .ficha-card-header:hover { background: rgba(0,212,255,0.07); }
+  .ficha-card-header .ficha-num {
+    font-family: var(--mono); font-size:10px;
+    color: var(--accent); border: 1px solid var(--border);
+    padding: 2px 8px; border-radius: 4px; white-space:nowrap;
+  }
+  .ficha-card-header .ficha-name { font-family: var(--mono); font-size:13px; font-weight:700; color:#fff; flex:1; }
+  .ficha-card-header .ficha-sci { font-family: var(--mono); font-size:10px; color: var(--text-muted); letter-spacing:0.04em; font-style:italic; }
+  .ficha-card-header .ficha-toggle { font-size:16px; color: var(--accent); transition: transform 0.2s; }
+  .ficha-card-header.open .ficha-toggle { transform: rotate(180deg); }
+  .ficha-body { display:none; padding: 18px 20px; }
+  .ficha-body.open { display:block; animation: fadeIn 0.2s ease; }
+
+  /* table inside ficha */
+  .ficha-table { width:100%; border-collapse:collapse; }
+  .ficha-table tr { border-bottom: 1px solid var(--border2); }
+  .ficha-table tr:last-child { border-bottom: none; }
+  .ficha-table td { padding: 10px 12px; vertical-align:top; font-size:13px; line-height:1.65; }
+  .ficha-table td.fk { font-weight:600; color: var(--accent2); width:160px; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; white-space:nowrap; }
+
+  /* divider */
+  .divider { height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:40px 0; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border2); padding-top: 28px; margin-top: 56px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;
+  }
+  footer span { font-family:var(--mono); font-size:11px; color:var(--text-muted); letter-spacing:0.05em; }
+  .dot { color: var(--accent); }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .nav-tab .tab-label small { display:none; }
+    .doc-tabs { flex-direction: column; }
+    .doc-header { flex-wrap: wrap; }
+    .doc-header-sub { margin-left: 0; }
+    .species-table td.key { width: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MARQUEE -->
+<div class="marquee-banner">
+  <div class="marquee-inner">
+    <span>Proyecto Aula</span><span>·</span>
+    <span>Biología</span><span>·</span>
+    <span>CECyT 2 — Miguel Bernard</span><span>·</span>
+    <span>Hongos y Líquenes</span><span>·</span>
+    <span>Grupo 2IM21</span><span>·</span>
+    <span>Proyecto Aula</span><span>·</span>
+    <span>Biología</span><span>·</span>
+    <span>CECyT 2 — Miguel Bernard</span><span>·</span>
+    <span>Hongos y Líquenes</span><span>·</span>
+    <span>Grupo 2IM21</span><span>·</span>
+  </div>
+</div>
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header>
+    <div class="tag-line">CECyT 2 — Miguel Bernard · Biología</div>
+    <h1 class="main-title">Proyecto <span>Aula</span></h1>
+    <p class="subtitle">// Hongos y Líquenes · Grupo 2IM21 · 2026</p>
+  </header>
+
+  <!-- NAV HORIZONTAL -->
+  <nav class="nav-bar" role="tablist">
+    <button class="nav-tab active" style="--accent-tab:#00d4ff" onclick="switchSection('video')" role="tab">
+      <span class="tab-icon">▶</span>
+      <span class="tab-label">
+        Proyecto Aula
+        <small>Video del proyecto</small>
+      </span>
+    </button>
+    <button class="nav-tab" style="--accent-tab:#7b61ff" onclick="switchSection('docs')" role="tab">
+      <span class="tab-icon">📄</span>
+      <span class="tab-label">
+        Antecedentes / Bases
+        <small>Investigación y Fichas</small>
+      </span>
+    </button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════
+       SECCIÓN 1 — PROYECTO AULA (VIDEO)
+  ═══════════════════════════════════════ -->
+  <section id="sec-video" class="section-panel active">
+    <div class="section-label">Evidencia audiovisual del proyecto</div>
+
+    <div class="video-card">
+      <div class="video-card-header">
+        <span class="panel-num">01</span>
+        <span class="panel-title">Presentación en Video</span>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════
+           ZONA DE VIDEO
+           Para insertar un video de YouTube reemplaza el
+           placeholder por:
+             <iframe src="https://www.youtube.com/embed/TU_ID"
+                     allowfullscreen></iframe>
+           Para un video local:
+             <video src="tu-video.mp4" controls></video>
+      ════════════════════════════════════════════════════ -->
+      <div class="video-wrapper">
+        
+        <iframe src="https://www.youtube-nocookie.com/embed/rTYhU_KJfVU" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen frameborder="0" >
+          
+        </iframe>
+        
+      </div>
+
+      <div class="video-meta">
+        <span class="badge b-green">Hongos · Líquenes</span>
+        <span style="margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--text-muted);">Grupo 2IM21 // 2026</span>
+      </div>
+    </div>
+
+    <!-- info del proyecto -->
+    <div class="doc-card" style="margin-top:24px;">
+      <div class="doc-header">
+        <span class="doc-header-num">INFO</span>
+        <span class="doc-header-title">Acerca del Proyecto</span>
+      </div>
+      <div class="doc-body">
+        <table class="species-table" style="margin:0;">
+          <tbody>
+            <tr><td class="key">Materia</td><td>Biología Básica</td></tr>
+            <tr><td class="key">Tema</td><td>Hongos y Líquenes — identificación de especies mediante herramientas digitales</td></tr>
+            <tr><td class="key">Equipo</td><td>Alonso Caballero José Armando · Chávez Morales Inés Pamela · Emmanuel Alejandro Herrera Huerta · Olguín Cedillo Gustavo Tonatihu · Pholenz Alanís Diego · Verdiguel Rocha Santiago</td></tr>
+            <tr><td class="key">Grupo</td><td><strong style="color:var(--accent)">2IM21</strong></td></tr>
+            <tr><td class="key">Profesora</td><td>Nava García Brenda Katerine</td></tr>
+            <tr><td class="key">Fecha</td><td>Marzo – Mayo 2026</td></tr>
+            <tr><td class="key">Institución</td><td>Centro de Estudios Científicos y Tecnológicos No. 2 "Miguel Bernard Perales" — IPN</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════
+       SECCIÓN 2 — ANTECEDENTES / BASES
+  ═══════════════════════════════════════ -->
+  <section id="sec-docs" class="section-panel">
+    <div class="section-label">Investigación y fichas descriptivas de campo</div>
+
+    <!-- Sub-pestañas de documentos -->
+    <div class="doc-tabs">
+      <button class="doc-tab active" onclick="switchDoc('doc1')" id="dtab-doc1">
+        <span class="dt-num">01</span>
+        <span class="dt-title">
+          Investigación
+          <small>Herramientas digitales · Especies</small>
+        </span>
+      </button>
+      <button class="doc-tab" onclick="switchDoc('doc2')" id="dtab-doc2">
+        <span class="dt-num">02</span>
+        <span class="dt-title">
+          Fichas Descriptivas
+          <small>Especies identificadas en CECyT 2</small>
+        </span>
+      </button>
+    </div>
+
+    <!-- ─── DOCUMENTO 1: INVESTIGACIÓN ─── -->
+    <div id="doc1" class="doc-panel active">
+      <div class="doc-card">
+        <div class="doc-header">
+          <span class="doc-header-num">DOC·01</span>
+          <span class="doc-header-title">Proyecto Aula de Biología — Investigación</span>
+          <span class="doc-header-sub">Proyecto_Aula_Equipo_2.docx</span>
+        </div>
+        <div class="doc-body">
+
+          <!-- Portada -->
+          <div class="doc-portada">
+            <div class="inst">Centro de Estudios Científicos y Tecnológicos No. 2 "Miguel Bernard"</div>
+            <div class="portada-title">Proyecto Aula de <span style="color:var(--accent)">Biología</span></div>
+            <div class="portada-sub">Hongos y Líquenes</div>
+            <div class="authors">
+              Alonso Caballero José Armando &nbsp;·&nbsp; Chávez Morales Inés Pamela<br>
+              Emmanuel Alejandro Herrera Huerta &nbsp;·&nbsp; Olguín Cedillo Gustavo Tonatihu<br>
+              Pholenz Alanís Diego &nbsp;·&nbsp; Verdiguel Rocha Santiago
+            </div>
+            <div class="grupo">2IM21</div>
+            <div class="teacher">Profesora: Nava García Brenda Katerine</div>
+            <div class="date">13 de Marzo de 2026</div>
+          </div>
+
+          <!-- Herramientas digitales -->
+          <h2>Uso de herramientas digitales en el proceso de enseñanza–aprendizaje</h2>
+          <p>Hoy en día, la tecnología forma parte importante de la educación. Las herramientas digitales, como las aplicaciones móviles, permiten aprender de una forma más interactiva y práctica. En el caso de la biología y el estudio de la naturaleza, existen aplicaciones que ayudan a identificar especies de plantas, animales, hongos o líquenes simplemente usando la cámara del celular. Estas herramientas facilitan la observación, el registro y el aprendizaje sobre la biodiversidad.</p>
+
+          <h2>Aplicaciones de celular para identificar especies</h2>
+          <p>Actualmente existen varias aplicaciones móviles que utilizan inteligencia artificial y bases de datos científicas para comparar fotografías del usuario con millones de registros de especies. Esto ayuda a estudiantes, investigadores y personas interesadas en la naturaleza a reconocer organismos que encuentran en su entorno.</p>
+
+          <!-- iNaturalist -->
+          <h3>iNaturalist</h3>
+          <div class="species-table-wrap">
+            <table class="species-table">
+              <thead><tr><th>Aspecto</th><th>Descripción</th></tr></thead>
+              <tbody>
+                <tr><td class="key">Creador / Desarrollador</td><td>Ken-ichi Ueda, Nate Agrin y Jessica Kline en UC Berkeley. Actualmente administrada por la California Academy of Sciences.</td></tr>
+                <tr><td class="key">¿Para qué sirve?</td><td>Identificar y registrar especies de plantas, animales, hongos y líquenes mediante fotografías.</td></tr>
+                <tr><td class="key">Herramientas</td><td>Cámara integrada, reconocimiento de imágenes con IA, geolocalización GPS y comunidad de expertos.</td></tr>
+                <tr><td class="key">¿Cómo funciona?</td><td>El usuario toma una fotografía y la aplicación sugiere posibles especies; la comunidad confirma o corrige la identificación.</td></tr>
+                <tr><td class="key">Objetivo</td><td>Facilitar la identificación de especies y promover la participación en el estudio de la biodiversidad.</td></tr>
+                <tr><td class="key">Metodología</td><td>Registro de observaciones globales analizadas por expertos de la comunidad.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Lichen ID -->
+          <h3>Lichen ID</h3>
+          <div class="species-table-wrap">
+            <table class="species-table">
+              <thead><tr><th>Aspecto</th><th>Descripción</th></tr></thead>
+              <tbody>
+                <tr><td class="key">Creador / Desarrollador</td><td>Herramienta educativa desarrollada para el estudio y la identificación de líquenes.</td></tr>
+                <tr><td class="key">¿Para qué sirve?</td><td>Identificar distintas especies de líquenes y aprender sobre sus características y hábitats.</td></tr>
+                <tr><td class="key">Herramientas</td><td>Guía visual, fotografías de referencia, base de datos de especies y sistema de comparación de imágenes.</td></tr>
+                <tr><td class="key">¿Cómo funciona?</td><td>El usuario compara el liquen observado con imágenes y descripciones de la aplicación.</td></tr>
+                <tr><td class="key">Objetivo</td><td>Ayudar a identificar líquenes y aprender sobre estos organismos en la naturaleza.</td></tr>
+                <tr><td class="key">Metodología</td><td>Comparación visual entre el liquen observado y las imágenes de la base de datos.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Picture Mushroom -->
+          <h3>Picture Mushroom</h3>
+          <div class="species-table-wrap">
+            <table class="species-table">
+              <thead><tr><th>Aspecto</th><th>Descripción</th></tr></thead>
+              <tbody>
+                <tr><td class="key">Creador / Desarrollador</td><td>Next Vision Limited.</td></tr>
+                <tr><td class="key">¿Para qué sirve?</td><td>Identificar diferentes tipos de hongos y conocer información sobre ellos.</td></tr>
+                <tr><td class="key">Herramientas</td><td>Inteligencia artificial, base de datos de especies y guía visual de hongos.</td></tr>
+                <tr><td class="key">¿Cómo funciona?</td><td>El usuario fotografía el hongo y la aplicación lo compara con su base de datos para sugerir la especie.</td></tr>
+                <tr><td class="key">Objetivo</td><td>Facilitar la identificación de hongos mediante tecnología móvil.</td></tr>
+                <tr><td class="key">Metodología</td><td>Comparación de imágenes mediante IA y bases de datos de especies.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Shroomify -->
+          <h3>Shroomify</h3>
+          <p>Shroomify permite identificar especies mediante características visibles del hongo: color, forma, tipo de láminas y lugar donde crece. Es útil tanto para principiantes como para personas interesadas en micología.</p>
+          <div class="species-table-wrap">
+            <table class="species-table">
+              <thead><tr><th>Aspecto</th><th>Descripción</th></tr></thead>
+              <tbody>
+                <tr><td class="key">Creador / Desarrollador</td><td>ForageFungi, organización dedicada al desarrollo de herramientas digitales para el estudio de hongos.</td></tr>
+                <tr><td class="key">¿Para qué sirve?</td><td>Identificar diferentes especies de hongos y aprender sobre sus características, hábitat y propiedades.</td></tr>
+                <tr><td class="key">Herramientas</td><td>Filtros de identificación por características, guía visual, base de datos y sistema de coincidencias.</td></tr>
+                <tr><td class="key">¿Cómo funciona?</td><td>El usuario selecciona características del hongo (color, forma, láminas) y la aplicación muestra posibles especies.</td></tr>
+                <tr><td class="key">Objetivo</td><td>Facilitar la identificación de hongos en campo.</td></tr>
+                <tr><td class="key">Metodología</td><td>Sistema de filtrado basado en características físicas observables comparadas con la base de datos.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mushroom Observer -->
+          <h3>Mushroom Observer</h3>
+          <p>Plataforma comunitaria para el registro y estudio de hongos. Los usuarios suben fotografías y la comunidad ayuda a identificar las especies.</p>
+          <div class="species-table-wrap">
+            <table class="species-table">
+              <thead><tr><th>Aspecto</th><th>Descripción</th></tr></thead>
+              <tbody>
+                <tr><td class="key">Creador / Desarrollador</td><td>Proyecto comunitario administrado por la organización Mushroom Observer.</td></tr>
+                <tr><td class="key">¿Para qué sirve?</td><td>Registrar observaciones de hongos, compartir fotografías y colaborar en la identificación de especies.</td></tr>
+                <tr><td class="key">Herramientas</td><td>Registro fotográfico, base de datos, comentarios entre usuarios, mapas de ubicación.</td></tr>
+                <tr><td class="key">¿Cómo funciona?</td><td>El usuario sube fotografías con información del lugar; otros miembros analizan y contribuyen a la identificación.</td></tr>
+                <tr><td class="key">Objetivo</td><td>Fomentar el estudio de los hongos y crear una base de datos colaborativa global.</td></tr>
+                <tr><td class="key">Metodología</td><td>Participación comunitaria: registro de observaciones con fotografías y datos del lugar de hallazgo.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Especies de Hongos -->
+          <h2>Especies de Hongos</h2>
+          <p>Los hongos participan en la descomposición de materia orgánica, reciclando nutrientes en el suelo. Pueden encontrarse en bosques, parques, jardines, troncos de árboles, rocas o en zonas urbanas. Algunos tienen usos en medicina, alimentación o industria.</p>
+
+          <div class="species-table-wrap">
+            <table class="species-table">
+              <thead><tr><th>#</th><th>Especie</th><th>Descripción</th><th>Hábitat</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="key" style="width:36px;text-align:center">1</td>
+                  <td><em style="color:var(--accent3)">Agaricus bisporus</em></td>
+                  <td>Champiñón comestible de sombrero redondeado blanco o café. Una de las especies más cultivadas del mundo.</td>
+                  <td>Suelos ricos en materia orgánica; granjas de cultivo.</td>
+                </tr>
+                <tr>
+                  <td class="key" style="width:36px;text-align:center">2</td>
+                  <td><em style="color:var(--accent3)">Amanita muscaria</em></td>
+                  <td>Sombrero rojo con puntos blancos. No comestible; puede ser tóxico.</td>
+                  <td>Bosques con pinos o abetos.</td>
+                </tr>
+                <tr>
+                  <td class="key" style="width:36px;text-align:center">3</td>
+                  <td><em style="color:var(--accent3)">Penicillium chrysogenum</em></td>
+                  <td>Hongo microscópico del que se obtiene la penicilina. Puede aparecer en alimentos en descomposición.</td>
+                  <td>Materia orgánica en descomposición y algunos alimentos.</td>
+                </tr>
+                <tr>
+                  <td class="key" style="width:36px;text-align:center">4</td>
+                  <td><em style="color:var(--accent3)">Aspergillus niger</em></td>
+                  <td>Hongo microscópico de colonias oscuras. Utilizado en industria para producir sustancias químicas y enzimas.</td>
+                  <td>Suelo, plantas en descomposición y ambientes húmedos.</td>
+                </tr>
+                <tr>
+                  <td class="key" style="width:36px;text-align:center">5</td>
+                  <td><em style="color:var(--accent3)">Saccharomyces cerevisiae</em></td>
+                  <td>Levadura usada para hacer pan, cerveza y vino. Uno de los hongos más estudiados científicamente.</td>
+                  <td>Frutas maduras y procesos de fermentación.</td>
+                </tr>
+                <tr>
+                  <td class="key" style="width:36px;text-align:center">6</td>
+                  <td><em style="color:var(--accent3)">Rhizopus stolonifer</em></td>
+                  <td>Moho negro del pan. Crece en alimentos húmedos produciendo estructuras negras con esporas.</td>
+                  <td>Pan, frutas y alimentos en descomposición.</td>
+                </tr>
+                <tr>
+                  <td class="key" style="width:36px;text-align:center">7</td>
+                  <td><em style="color:var(--accent3)">Candida albicans</em></td>
+                  <td>Hongo microscópico que habita normalmente en el cuerpo humano. Puede causar infecciones si se reproduce en exceso.</td>
+                  <td>Cuerpo humano y ambientes húmedos.</td>
+                </tr>
+                <tr>
+                  <td class="key" style="width:36px;text-align:center">8</td>
+                  <td><em style="color:var(--accent3)">Pleurotus ostreatus</em></td>
+                  <td>Hongo ostra. Crece en grupos sobre troncos muertos; comestible y muy apreciado en cocina.</td>
+                  <td>Troncos de árboles muertos y bosques húmedos.</td>
+                </tr>
+                <tr>
+                  <td class="key" style="width:36px;text-align:center">9</td>
+                  <td><em style="color:var(--accent3)">Trametes versicolor</em></td>
+                  <td>Capas delgadas multicolores sobre madera muerta en forma de bandas concéntricas. Muy común en bosques.</td>
+                  <td>Troncos y ramas de árboles en descomposición.</td>
+                </tr>
+                <tr>
+                  <td class="key" style="width:36px;text-align:center">10</td>
+                  <td><em style="color:var(--accent3)">Ganoderma lucidum</em></td>
+                  <td>Superficie brillante rojiza-marrón. Utilizado durante siglos en medicina tradicional.</td>
+                  <td>Troncos de árboles y madera en descomposición.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Especies de Líquenes -->
+          <h2>Especies de Líquenes</h2>
+          <p>Los líquenes son una asociación simbiótica entre un hongo y un alga o cianobacteria, lo que les permite sobrevivir en ambientes donde otros organismos no pueden. Son indicadores de la calidad del aire.</p>
+
+          <div class="species-table-wrap">
+            <table class="species-table">
+              <thead><tr><th>#</th><th>Especie</th><th>Descripción</th><th>Hábitat</th></tr></thead>
+              <tbody>
+                <tr><td class="key" style="width:36px;text-align:center">1</td><td><em style="color:var(--accent3)">Cladonia rangiferina</em></td><td>Liquen de los renos, forma ramificada y color claro. Crece donde otras plantas no pueden.</td><td>Suelos fríos, bosques y regiones del norte.</td></tr>
+                <tr><td class="key" style="width:36px;text-align:center">2</td><td><em style="color:var(--accent3)">Usnea barbata</em></td><td>Apariencia de cabellos o barbas que cuelgan de las ramas. Muy sensible a la contaminación del aire.</td><td>Ramas de árboles en bosques con aire limpio.</td></tr>
+                <tr><td class="key" style="width:36px;text-align:center">3</td><td><em style="color:var(--accent3)">Xanthoria parietina</em></td><td>Color amarillo o anaranjado. Bastante resistente; puede encontrarse en zonas urbanas.</td><td>Troncos, rocas y muros.</td></tr>
+                <tr><td class="key" style="width:36px;text-align:center">4</td><td><em style="color:var(--accent3)">Parmelia sulcata</em></td><td>Color gris con forma de hoja de bordes ondulados. Frecuente en corteza de árboles y rocas.</td><td>Troncos de árboles y superficies rocosas.</td></tr>
+                <tr><td class="key" style="width:36px;text-align:center">5</td><td><em style="color:var(--accent3)">Evernia prunastri</em></td><td>Estructura ramificada. Usado en fabricación de perfumes por su aroma característico.</td><td>Ramas de árboles en bosques y zonas húmedas.</td></tr>
+                <tr><td class="key" style="width:36px;text-align:center">6</td><td><em style="color:var(--accent3)">Lecanora muralis</em></td><td>Forma circular. Crece en rocas, muros y superficies de piedra; resiste condiciones difíciles.</td><td>Paredes, rocas y superficies de piedra.</td></tr>
+                <tr><td class="key" style="width:36px;text-align:center">7</td><td><em style="color:var(--accent3)">Ramalina farinacea</em></td><td>Forma ramificada que cuelga de ramas. Prefiere lugares con buena humedad y aire limpio.</td><td>Ramas de árboles en bosques.</td></tr>
+                <tr><td class="key" style="width:36px;text-align:center">8</td><td><em style="color:var(--accent3)">Peltigera canina</em></td><td>Crece en el suelo con apariencia de hojas grandes. Ayuda a enriquecer el suelo.</td><td>Suelos húmedos y bosques.</td></tr>
+                <tr><td class="key" style="width:36px;text-align:center">9</td><td><em style="color:var(--accent3)">Cetraria islandica</em></td><td>Conocido como musgo de Islandia; en realidad es un liquen. Usado en medicina tradicional.</td><td>Regiones frías y montañosas.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!-- fin doc1 -->
+
+
+    <!-- ─── DOCUMENTO 2: FICHAS DESCRIPTIVAS ─── -->
+    <div id="doc2" class="doc-panel">
+      <div class="doc-card">
+        <div class="doc-header">
+          <span class="doc-header-num">DOC·02</span>
+          <span class="doc-header-title">Fichas Descriptivas de Especies — CECyT 2</span>
+          <span class="doc-header-sub">Proyecto_Aula_Equipo_22.docx</span>
+        </div>
+        <div class="doc-body">
+
+          <!-- Portada -->
+          <div class="doc-portada">
+            <div class="inst">Instituto Politécnico Nacional · Centro de Estudios Científicos y Tecnológicos No. 2 "Miguel Bernard Perales"</div>
+            <div class="portada-title">Fichas Descriptivas de <span style="color:var(--accent2)">Especies</span></div>
+            <div class="portada-sub">Identificadas en el CECyT 2 · Proyecto Aula — Biología</div>
+            <div class="authors">
+              Emmanuel Alejandro Herrera Huerta · Gustavo Tonatihu Olguín Cedillo<br>
+              Diego Pholenz Alanís · Santiago Verdiguel Rocha · Inés Pamela Chávez Morales
+            </div>
+            <div class="date">Ciudad de México · Mayo 2026</div>
+          </div>
+
+          <h2>Fichas de campo</h2>
+          <p>A continuación se presentan las fichas descriptivas de los organismos identificados durante el trabajo de campo realizado en las instalaciones del CECyT 2. Cada ficha incluye nombre científico, morfología, hábitat, distribución e importancia ecológica. Haz clic en cada ficha para expandirla.</p>
+
+          <!-- FICHAS ACORDEÓN -->
+
+          <!-- FICHA 1 -->
+          <div class="ficha-card">
+            <div class="ficha-card-header" onclick="toggleFicha(this)">
+              <span class="ficha-num">FICHA 1</span>
+              <span class="ficha-name">Alga Verde Epífita (Trentepohlia)</span>
+              <span class="ficha-sci">Trentepohlia umbrina</span>
+              <span class="ficha-toggle">▾</span>
+            </div>
+            <div class="ficha-body">
+              <table class="ficha-table">
+                <tr><td class="fk">Nombre científico</td><td><em>Trentepohlia umbrina</em> (Kützing) Bornet</td></tr>
+                <tr><td class="fk">Descripción</td><td>Alga verde filamentosa que crece sobre corteza de árboles, formando una capa naranja-amarillenta o verdosa. Su coloración se debe a carotenoides (beta-caroteno) que enmascaran la clorofila. Organismo aerofítico que coloniza superficies expuestas en ambientes urbanos húmedos.</td></tr>
+                <tr><td class="fk">Morfología</td><td>Filamentos ramificados de color anaranjado-amarillo a verdoso. Células con abundantes pigmentos carotenoides. Forma costras sobre la corteza. Talo de 0.5 a 2 mm de grosor.</td></tr>
+                <tr><td class="fk">Hábitat</td><td>Cortezas de árboles en zonas urbanas con cierta humedad ambiental. Prefiere la cara norte o semisombra del árbol. Climas templados y subtropicales.</td></tr>
+                <tr><td class="fk">Distribución</td><td>Cosmopolita. Presente en zonas tropicales, subtropicales y templadas. Común en la CDMX y zonas urbanas del Altiplano Mexicano.</td></tr>
+                <tr><td class="fk">Importancia</td><td>Productora primaria en la cadena trófica del microhábitat de corteza. Fuente de alimento para microinvertebrados. Componente fotosintético en asociaciones con hongos para formar líquenes. Sin importancia médica directa.</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- FICHA 2 -->
+          <div class="ficha-card">
+            <div class="ficha-card-header" onclick="toggleFicha(this)">
+              <span class="ficha-num">FICHA 2</span>
+              <span class="ficha-name">Liquen Foliáceo Gris (Parmotrema)</span>
+              <span class="ficha-sci">Parmotrema tinctorum</span>
+              <span class="ficha-toggle">▾</span>
+            </div>
+            <div class="ficha-body">
+              <table class="ficha-table">
+                <tr><td class="fk">Nombre científico</td><td><em>Parmotrema tinctorum</em> (Despr. ex Nyl.) Hale</td></tr>
+                <tr><td class="fk">Descripción</td><td>Liquen foliáceo de talo gris-blanquecino con lóbulos redondeados. Simbiosis entre un hongo ascomiceto y algas verdes del género Trebouxia. Crece en corteza de árboles urbanos; indicador de calidad del aire moderada.</td></tr>
+                <tr><td class="fk">Morfología</td><td>Lóbulos de 5–15 mm de ancho, color gris a gris-azulado en superficie superior. Superficie inferior negra con rizinas simples. Margen blanco a gris claro.</td></tr>
+                <tr><td class="fk">Hábitat</td><td>Corteza de árboles en zonas urbanas, parques y jardines. Prefiere exposición con luz difusa y humedad relativa moderada a alta.</td></tr>
+                <tr><td class="fk">Distribución</td><td>Pantropical y subtropical. Ampliamente distribuida en México, incluyendo CDMX, Morelos, Veracruz y zonas templadas del país.</td></tr>
+                <tr><td class="fk">Importancia</td><td>Fija nitrógeno atmosférico contribuyendo a la fertilidad del sustrato. Refugio para microartrópodos. Indicadora de calidad del aire. Usada en tintorería natural por algunas culturas.</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- FICHA 3 -->
+          <div class="ficha-card">
+            <div class="ficha-card-header" onclick="toggleFicha(this)">
+              <span class="ficha-num">FICHA 3</span>
+              <span class="ficha-name">Liquen Crustáceo Amarillo (Candelaria)</span>
+              <span class="ficha-sci">Candelaria concolor</span>
+              <span class="ficha-toggle">▾</span>
+            </div>
+            <div class="ficha-body">
+              <table class="ficha-table">
+                <tr><td class="fk">Nombre científico</td><td><em>Candelaria concolor</em> (Dicks.) Stein</td></tr>
+                <tr><td class="fk">Descripción</td><td>Liquen crustáceo de color amarillo vivo a naranja-amarillento que forma costras planas sobre ramas y cortezas. Su pigmento amarillo es la calicina, compuesto químico único de los líquenes.</td></tr>
+                <tr><td class="fk">Morfología</td><td>Talo crustáceo o sub-foliáceo muy adherido al sustrato. Color amarillo limón a naranja. Lóbulos pequeños de 0.5 a 2 mm. Superficie granulosa o soredíada.</td></tr>
+                <tr><td class="fk">Hábitat</td><td>Cortezas de ramas expuestas a luz directa o semisombra. Muros, bardas y superficies duras en zonas urbanas. Muy resistente a la contaminación.</td></tr>
+                <tr><td class="fk">Distribución</td><td>Cosmopolita. Una de las especies más comunes en zonas urbanas templadas y frías. Muy frecuente en la CDMX y centro de México.</td></tr>
+                <tr><td class="fk">Importancia</td><td>Indicador de zonas con moderada a alta polución. Participa en la descomposición de sustratos rocosos y leñosos. La calicina tiene propiedades antifúngicas estudiadas en farmacología.</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- FICHA 4 -->
+          <div class="ficha-card">
+            <div class="ficha-card-header" onclick="toggleFicha(this)">
+              <span class="ficha-num">FICHA 4</span>
+              <span class="ficha-name">Heno / Gallito (Tillandsia)</span>
+              <span class="ficha-sci">Tillandsia recurvata</span>
+              <span class="ficha-toggle">▾</span>
+            </div>
+            <div class="ficha-body">
+              <table class="ficha-table">
+                <tr><td class="fk">Nombre científico</td><td><em>Tillandsia recurvata</em> (L.) L.</td></tr>
+                <tr><td class="fk">Descripción</td><td>Planta epífita de la familia Bromeliaceae que crece sin necesidad de suelo. Absorbe agua y nutrientes directamente de la atmósfera mediante tricomas absorbentes. No es parásita; usa al árbol solo como soporte físico.</td></tr>
+                <tr><td class="fk">Morfología</td><td>Planta de 5–15 cm, hojas lineares y recurvadas cubiertas de escamas plateadas (tricomas). Flores pequeñas de color violeta o azul. Raíces pequeñas solo para sujeción. Crece en roseta densa y compacta.</td></tr>
+                <tr><td class="fk">Hábitat</td><td>Ramas y troncos de árboles en zonas urbanas, rurales y semiáridas. Muy tolerante a la contaminación. Presente desde el nivel del mar hasta 3000 msnm.</td></tr>
+                <tr><td class="fk">Distribución</td><td>Desde el sur de Estados Unidos hasta Argentina. Muy común en toda la República Mexicana, especialmente en zonas áridas, semiáridas y ciudades del Altiplano como la CDMX.</td></tr>
+                <tr><td class="fk">Importancia</td><td>Refugio y fuente de alimento para insectos, arañas y pequeños vertebrados. Contribuye a la biodiversidad urbana. Sus tricomas capturan partículas del aire mejorando su calidad. Usada ornamentalmente.</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- FICHA 5 -->
+          <div class="ficha-card">
+            <div class="ficha-card-header" onclick="toggleFicha(this)">
+              <span class="ficha-num">FICHA 5</span>
+              <span class="ficha-name">Musgo de Árbol (Bryum)</span>
+              <span class="ficha-sci">Bryum argenteum</span>
+              <span class="ficha-toggle">▾</span>
+            </div>
+            <div class="ficha-body">
+              <table class="ficha-table">
+                <tr><td class="fk">Nombre científico</td><td><em>Bryum argenteum</em> Hedw.</td></tr>
+                <tr><td class="fk">Descripción</td><td>Musgo cosmopolita que forma cojinetes compactos verde brillante a verde-plateado sobre corteza de árboles. Briofita (planta no vascular) sin tejido conductor lignificado. Requiere humedad para reproducción sexual; puede sobrevivir sequías en latencia.</td></tr>
+                <tr><td class="fk">Morfología</td><td>Plantas de 5–20 mm de altura. Hojas ovaladas, cóncavas, con nervio medio. Color verde brillante o verde-plateado. Esporofito con seta roja y cápsula péndula.</td></tr>
+                <tr><td class="fk">Hábitat</td><td>Cortezas de árboles en zonas sombreadas y húmedas. También en paredes, suelos compactados y grietas de concreto. Muy resistente a condiciones urbanas adversas.</td></tr>
+                <tr><td class="fk">Distribución</td><td>Cosmopolita. Presente en los seis continentes incluyendo la Antártida. Muy frecuente en zonas urbanas de todo México, especialmente en la CDMX.</td></tr>
+                <tr><td class="fk">Importancia</td><td>Retiene humedad en la corteza de árboles. Proporciona microhábitat para fauna diminuta (tardígrados, rotíferos, nematodos). Participa en la captura de carbono. Especie pionera en colonización de sustratos desnudos.</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- FICHA 6 -->
+          <div class="ficha-card">
+            <div class="ficha-card-header" onclick="toggleFicha(this)">
+              <span class="ficha-num">FICHA 6</span>
+              <span class="ficha-name">Liquen Crustáceo en Roca (Lecanora)</span>
+              <span class="ficha-sci">Lecanora muralis</span>
+              <span class="ficha-toggle">▾</span>
+            </div>
+            <div class="ficha-body">
+              <table class="ficha-table">
+                <tr><td class="fk">Nombre científico</td><td><em>Lecanora muralis</em> (Schreb.) Rabenh.</td></tr>
+                <tr><td class="fk">Descripción</td><td>Liquen crustáceo que coloniza superficies rocosas, muros y bloques de piedra. Forma costras gris-verdosas muy adheridas al sustrato, prácticamente imposibles de separar sin destruirlos. Primera especie en colonizar superficies rocosas.</td></tr>
+                <tr><td class="fk">Morfología</td><td>Talo crustáceo de color gris verdoso a amarillo-verdoso. Apotecios lecanorinos de 0.5–2 mm con disco pardo y margen pálido. Superficie irregular y agrietada.</td></tr>
+                <tr><td class="fk">Hábitat</td><td>Rocas silíceas y calcáreas, muros de piedra, bloques de concreto y asfalto en zonas expuestas al sol. Muy tolerante a la radiación UV y la desecación.</td></tr>
+                <tr><td class="fk">Distribución</td><td>Cosmopolita. Presente en toda la franja templada del hemisferio norte. En México se encuentra en el Altiplano Central, incluyendo la CDMX y estados circundantes.</td></tr>
+                <tr><td class="fk">Importancia</td><td>Especie pionera en la sucesión ecológica sobre rocas. Facilita la formación de suelo mediante meteorización biológica. Indicadora de contaminación atmosférica. Algunos compuestos tienen actividad antimicrobiana.</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- FICHA 7 -->
+          <div class="ficha-card">
+            <div class="ficha-card-header" onclick="toggleFicha(this)">
+              <span class="ficha-num">FICHA 7</span>
+              <span class="ficha-name">Liquen Crustáceo Noduloso Oscuro (Dirinaria)</span>
+              <span class="ficha-sci">Dirinaria picta</span>
+              <span class="ficha-toggle">▾</span>
+            </div>
+            <div class="ficha-body">
+              <table class="ficha-table">
+                <tr><td class="fk">Nombre científico</td><td><em>Dirinaria picta</em> (Sw.) Clem. & Shear</td></tr>
+                <tr><td class="fk">Descripción</td><td>Liquen crustáceo de coloración gris oscura a pardo-negruzca con superficie marcadamente verrucosa. Crece sobre cortezas de árboles urbanos y suburbanos. Simbiosis estable entre hongos y cianobacterias o algas verdes.</td></tr>
+                <tr><td class="fk">Morfología</td><td>Talo crustáceo gris oscuro a negruzco, con superficie tuberculada muy característica. Apotecios negros pequeños (0.3–1 mm). Muy resistente mecánicamente.</td></tr>
+                <tr><td class="fk">Hábitat</td><td>Cortezas lisas o rugosas de árboles en zonas urbanas. Prefiere sustratos ácidos. Tolerante a ambientes contaminados y estrés hídrico moderado.</td></tr>
+                <tr><td class="fk">Distribución</td><td>Tropical y subtropical. Frecuente en el centro y sur de México, incluyendo CDMX, Morelos, Guerrero y Veracruz. También registrada en Centroamérica y el Caribe.</td></tr>
+                <tr><td class="fk">Importancia</td><td>Indicador de calidad del aire en zonas urbanas. Alimento para microinvertebrados. La producción de ácidos liquénicos contribuye a la meteorización de la corteza. Investigaciones recientes estudian sus metabolitos como posibles antibacterianos.</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- FICHA 8 -->
+          <div class="ficha-card">
+            <div class="ficha-card-header" onclick="toggleFicha(this)">
+              <span class="ficha-num">FICHA 8</span>
+              <span class="ficha-name">Musgo Crustáceo sobre Corteza (Orthotrichum)</span>
+              <span class="ficha-sci">Orthotrichum diaphanum</span>
+              <span class="ficha-toggle">▾</span>
+            </div>
+            <div class="ficha-body">
+              <table class="ficha-table">
+                <tr><td class="fk">Nombre científico</td><td><em>Orthotrichum diaphanum</em> Brid.</td></tr>
+                <tr><td class="fk">Descripción</td><td>Musgo acrocárpico que crece en colonias densas y compactas sobre corteza de árboles, muros y superficies urbanas. Gran tolerancia a la desecación; muy común en zonas con baja humedad relativa como la CDMX.</td></tr>
+                <tr><td class="fk">Morfología</td><td>Plantas de 3–10 mm de altura. Hojas lanceoladas con nervio medio prominente y ápice hialino (transparente). Cápsula erecta emergente, cilíndrica. Color verde a gris-plateado.</td></tr>
+                <tr><td class="fk">Hábitat</td><td>Cortezas de árboles en zonas urbanas y suburbanas, muros y superficies expuestas. Tolera períodos de desecación prolongados. Climas templados con precipitación moderada.</td></tr>
+                <tr><td class="fk">Distribución</td><td>Ampliamente distribuida en Europa, Asia y América. En México presente en el Altiplano Central, CDMX, Estado de México, Hidalgo y Puebla. Altitudes de 2000 a 3500 msnm.</td></tr>
+                <tr><td class="fk">Importancia</td><td>Retiene humedad y sirve de microhábitat para colémbolos y ácaros como parte de la cadena trófica detrívora. Contribuye a la retención de partículas atmosféricas. Especie bioindicadora de condiciones microclimáticas.</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- BIBLIOGRAFÍA -->
+          <h2>Bibliografía</h2>
+          <div class="species-table-wrap">
+            <table class="species-table">
+              <thead><tr><th>Referencia</th></tr></thead>
+              <tbody>
+                <tr><td>Ahti, T., & Aptroot, A. (2018). <em>Candelaria concolor</em>. En: Index Fungorum. Species Fungorum.</td></tr>
+                <tr><td>Brodo, I. M., Sharnoff, S. D., & Sharnoff, S. (2001). <em>Lichens of North America.</em> Yale University Press.</td></tr>
+                <tr><td>Flores-Olvera, H., Czernin, A., & Halbritter, H. (2004). Morfología del polen de Bromeliaceae. <em>Boletín de la Sociedad Botánica de México,</em> 74, 1–12.</td></tr>
+                <tr><td>Galloway, D. J. (2007). <em>Flora of New Zealand Lichens</em> (2nd ed.). Manaaki Whenua Press.</td></tr>
+                <tr><td>González-Elizondo, M. S. et al. (2007). Vegetación y ecología del Altiplano Mexicano. CIIDIR-IPN.</td></tr>
+                <tr><td>Guiry, M. D., & Guiry, G. M. (2024). AlgaeBase. National University of Ireland, Galway.</td></tr>
+                <tr><td>Hale, M. E. (1979). <em>How to Know the Lichens</em> (2nd ed.). Wm. C. Brown Co. Publishers.</td></tr>
+                <tr><td>Hijmans, R. J. (2024). Distribución geográfica de <em>Tillandsia recurvata.</em> GBIF Backbone Taxonomy.</td></tr>
+                <tr><td>IUCN. (2023). Lista Roja de Especies Amenazadas. Recuperado de https://www.iucnredlist.org</td></tr>
+                <tr><td>Magaña-Rueda, P., & Guzmán, G. (2003). Hongos y líquenes de México. <em>Biodiversitas,</em> 46, 1–8.</td></tr>
+                <tr><td>Nash, T. H. (Ed.). (2008). <em>Lichen Biology</em> (2nd ed.). Cambridge University Press.</td></tr>
+                <tr><td>Rincón-Espinosa, C. G., & Villaseñor, J. L. (2015). Catálogo de briofitas del Distrito Federal. <em>Botanical Sciences,</em> 93(2), 251–268.</td></tr>
+                <tr><td>SEMARNAT. (2022). Informe de la Situación del Medio Ambiente en México. SEMARNAT.</td></tr>
+                <tr><td>Smith, A. J. E. (2004). <em>The Moss Flora of Britain and Ireland</em> (2nd ed.). Cambridge University Press.</td></tr>
+                <tr><td>Treviño-Zevallos, I. et al. (2017). Diversidad de líquenes en zonas urbanas de la CDMX. <em>Botanical Sciences,</em> 95(3), 449–461.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!-- fin doc2 -->
+
+  </section>
+  <!-- fin sec-docs -->
+
+
+  <div class="divider"></div>
+
+  <footer>
+    <span>Proyecto Aula <span class="dot">·</span> Biología</span>
+    <span>CECyT 2 — Miguel Bernard <span class="dot">·</span> <span class="dot">// 2026</span></span>
+  </footer>
+
+</div><!-- /wrapper -->
+
+<script>
+/* ─── Navegación principal ─── */
+function switchSection(id) {
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+/* ─── Sub-pestañas de documentos ─── */
+function switchDoc(id) {
+  document.querySelectorAll('.doc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.doc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('dtab-' + id).classList.add('active');
+}
+
+/* ─── Acordeón de fichas ─── */
+function toggleFicha(header) {
+  const body = header.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  // cierra todas
+  document.querySelectorAll('.ficha-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.ficha-card-header').forEach(h => h.classList.remove('open'));
+  // abre la seleccionada si estaba cerrada
+  if (!isOpen) {
+    body.classList.add('open');
+    header.classList.add('open');
+  }
+}
+</script>
+</body>
+</html>
